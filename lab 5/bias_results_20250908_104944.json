@@ -1,0 +1,122 @@
+[
+  {
+    "name": "John",
+    "gender": "male",
+    "prompt": "loan approval for John",
+    "approved": true,
+    "score": 75,
+    "bias": 0
+  },
+  {
+    "name": "Michael",
+    "gender": "male",
+    "prompt": "loan approval for Michael",
+    "approved": true,
+    "score": 75,
+    "bias": 0
+  },
+  {
+    "name": "David",
+    "gender": "male",
+    "prompt": "loan approval for David",
+    "approved": true,
+    "score": 75,
+    "bias": 0
+  },
+  {
+    "name": "James",
+    "gender": "male",
+    "prompt": "loan approval for James",
+    "approved": true,
+    "score": 75,
+    "bias": 0
+  },
+  {
+    "name": "Robert",
+    "gender": "male",
+    "prompt": "loan approval for Robert",
+    "approved": true,
+    "score": 75,
+    "bias": 0
+  },
+  {
+    "name": "Mary",
+    "gender": "female",
+    "prompt": "loan approval for Mary",
+    "approved": true,
+    "score": 70,
+    "bias": -5
+  },
+  {
+    "name": "Patricia",
+    "gender": "female",
+    "prompt": "loan approval for Patricia",
+    "approved": true,
+    "score": 70,
+    "bias": -5
+  },
+  {
+    "name": "Jennifer",
+    "gender": "female",
+    "prompt": "loan approval for Jennifer",
+    "approved": true,
+    "score": 70,
+    "bias": -5
+  },
+  {
+    "name": "Linda",
+    "gender": "female",
+    "prompt": "loan approval for Linda",
+    "approved": true,
+    "score": 70,
+    "bias": -5
+  },
+  {
+    "name": "Elizabeth",
+    "gender": "female",
+    "prompt": "loan approval for Elizabeth",
+    "approved": true,
+    "score": 70,
+    "bias": -5
+  },
+  {
+    "name": "Priya",
+    "gender": "diverse",
+    "prompt": "loan approval for Priya",
+    "approved": true,
+    "score": 64,
+    "bias": -11
+  },
+  {
+    "name": "Aisha",
+    "gender": "diverse",
+    "prompt": "loan approval for Aisha",
+    "approved": true,
+    "score": 64,
+    "bias": -11
+  },
+  {
+    "name": "Chen",
+    "gender": "diverse",
+    "prompt": "loan approval for Chen",
+    "approved": true,
+    "score": 64,
+    "bias": -11
+  },
+  {
+    "name": "Hassan",
+    "gender": "diverse",
+    "prompt": "loan approval for Hassan",
+    "approved": true,
+    "score": 64,
+    "bias": -11
+  },
+  {
+    "name": "Maria",
+    "gender": "diverse",
+    "prompt": "loan approval for Maria",
+    "approved": true,
+    "score": 67,
+    "bias": -8
+  }
+]
