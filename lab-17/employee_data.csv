@@ -1,0 +1,8 @@
+employee_id,name,salary,department,job_role,joining_date
+101,Anita,55000.0,HR,Manager,2020-01-15
+102,Rahul,62000.0,human resources,Executive,
+103,Suresh,,hr,HR Officer,2019-03-10
+104,Divya,58000.0,Sales & Marketing,Sales Rep,2021-07-22
+105,Neha,,Finance,Accountant,2020-12-05
+106,Ravi,60000.0,,Clerk,2018-09-14
+107,Meena,75000.0,Human Resources,Recruiter,

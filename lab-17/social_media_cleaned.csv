@@ -1,0 +1,6 @@
+post_id,text,clean_text,tokens,lemmatized,processed_text
+1,I love this product!  Check it out: https://example.com,i love this product  check it out ,"['love', 'product', 'check']","['love', 'product', 'check']",love product check
+2,Worst service ever!! #fail ,worst service ever  ,"['worst', 'service', 'ever']","['worst', 'service', 'ever']",worst service ever
+3,"Not bad, could be better... ",not bad could be better ,"['bad', 'could', 'better']","['bad', 'could', 'better']",bad could better
+4,Totally amazing experience!!! @brand,totally amazing experience ,"['totally', 'amazing', 'experience']","['totally', 'amazing', 'experience']",totally amazing experience
+5,Meh... it's okay. http://test.com ,meh its okay  ,"['meh', 'okay']","['meh', 'okay']",meh okay
