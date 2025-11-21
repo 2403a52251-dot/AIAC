@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Conference Registration — Event Form</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f4f7fb; --card:#ffffff; --primary:#0EA5A4; --accent:#2563eb;
+      --muted:#6b7280; --text:#0b1220; --radius:12px; --shadow:0 8px 30px rgba(2,6,23,0.06);
+    }
+    *{box-sizing:border-box}
+    html{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;scroll-behavior:smooth}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:var(--text);padding:36px;display:flex;justify-content:center}
+    .wrapper{width:100%;max-width:920px}
+    .card{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    h1{margin:0 0 8px 0;font-weight:700}
+    p.lead{margin:0 0 18px 0;color:var(--muted)}
+    form{display:grid;gap:12px}
+    .row{display:flex;gap:12px}
+    .col{flex:1;min-width:0}
+    label{display:block;font-weight:600;margin-bottom:6px;font-size:14px}
+    input, select, textarea{
+      width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e6eef2;background:#fff;font-size:14px;
+    }
+    textarea{resize:vertical}
+    .helper{font-size:13px;color:var(--muted);margin-top:6px}
+    .error{color:#b91c1c;font-size:13px;margin-top:6px;min-height:18px}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:8px}
+    .btn{background:var(--primary);color:white;padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+    .btn--ghost{background:transparent;border:1px solid #e6eef2;color:var(--muted);padding:8px 12px;border-radius:10px}
+    .toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,var(--primary),#06b6d4);color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.12);opacity:0;transform:translateY(8px);transition:opacity .26s,transform .26s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
+    @media (max-width:720px){ .row{flex-direction:column} .actions{flex-direction:column;align-items:stretch} }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <section class="card" aria-labelledby="title">
+      <h1 id="title">Conference Registration</h1>
+      <p class="lead">Register to attend — please provide your contact details and choose a session.</p>
+
+      <form id="regForm" novalidate aria-describedby="formDesc">
+        <p id="formDesc" class="helper">Fields marked required are essential for registration.</p>
+
+        <div class="row">
+          <div class="col">
+            <label for="name">Full name <span aria-hidden="true" style="color:#b91c1c">*</span></label>
+            <input id="name" name="name" type="text" autocomplete="name" required aria-required="true" aria-invalid="false" aria-describedby="errName">
+            <div id="errName" class="error" role="alert" aria-live="polite"></div>
+          </div>
+
+          <div class="col">
+            <label for="email">Email <span aria-hidden="true" style="color:#b91c1c">*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" required aria-required="true" aria-invalid="false" aria-describedby="errEmail" pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+            <div id="errEmail" class="error" role="alert" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="phone">Phone (10 digits) <span aria-hidden="true" style="color:#b91c1c">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-required="true" aria-invalid="false" aria-describedby="errPhone" placeholder="9876543210" pattern="\d{10}">
+            <div id="errPhone" class="error" role="alert" aria-live="polite"></div>
+          </div>
+
+          <div class="col">
+            <label for="session">Session selection <span aria-hidden="true" style="color:#b91c1c">*</span></label>
+            <select id="session" name="session" required aria-required="true" aria-invalid="false" aria-describedby="errSession">
+              <option value="">Select a session</option>
+              <option value="ai">AI & Machine Learning — 9:00 AM</option>
+              <option value="web">Modern Web Development — 11:00 AM</option>
+              <option value="cloud">Cloud Native Architectures — 2:00 PM</option>
+            </select>
+            <div id="errSession" class="error" role="alert" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div>
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" name="notes" rows="3" aria-describedby="notesHelp"></textarea>
+          <div id="notesHelp" class="helper">Dietary restrictions or accessibility needs.</div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">Register</button>
+          <button type="button" class="btn--ghost" id="resetBtn">Reset</button>
+          <div id="formStatus" class="helper" aria-live="polite" style="margin-left:auto"></div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Registration successful</div>
+
+  <script>
+    // Professional, accessible client-side validation and UX.
+    const form = document.getElementById('regForm');
+    const nameEl = document.getElementById('name');
+    const emailEl = document.getElementById('email');
+    const phoneEl = document.getElementById('phone');
+    const sessionEl = document.getElementById('session');
+    const statusEl = document.getElementById('formStatus');
+
+    const errName = document.getElementById('errName');
+    const errEmail = document.getElementById('errEmail');
+    const errPhone = document.getElementById('errPhone');
+    const errSession = document.getElementById('errSession');
+    const toast = document.getElementById('toast');
+
+    // Basic validators
+    function validName(v){ return typeof v === 'string' && v.trim().length >= 2; }
+    function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function validPhone(v){ return /^\d{10}$/.test(v.replace(/\s|-/g,'')); }
+    function validSession(v){ return v !== ''; }
+
+    // Show toast helper
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=> toast.classList.remove('show'), 2800);
+    }
+
+    // Set aria-invalid and error text for an element
+    function setError(el, errEl, message){
+      if(message){
+        el.setAttribute('aria-invalid','true');
+        errEl.textContent = message;
+      } else {
+        el.setAttribute('aria-invalid','false');
+        errEl.textContent = '';
+      }
+    }
+
+    // Validate all fields; returns boolean
+    function validateAll(){
+      let ok = true;
+
+      if(!validName(nameEl.value)){
+        setError(nameEl, errName, 'Please enter your full name (min 2 characters).');
+        ok = false;
+      } else setError(nameEl, errName, '');
+
+      if(!validEmail(emailEl.value)){
+        setError(emailEl, errEmail, 'Please enter a valid email address.');
+        ok = false;
+      } else setError(emailEl, errEmail, '');
+
+      if(!validPhone(phoneEl.value)){
+        setError(phoneEl, errPhone, 'Please enter a 10-digit phone number.');
+        ok = false;
+      } else setError(phoneEl, errPhone, '');
+
+      if(!validSession(sessionEl.value)){
+        setError(sessionEl, errSession, 'Please select a session.');
+        ok = false;
+      } else setError(sessionEl, errSession, '');
+
+      return ok;
+    }
+
+    // Focus first invalid field
+    function focusFirstInvalid(){
+      const order = [nameEl, emailEl, phoneEl, sessionEl];
+      for(const el of order){
+        if(el.getAttribute('aria-invalid') === 'true'){
+          el.focus();
+          return;
+        }
+      }
+    }
+
+    // Event listeners
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      statusEl.textContent = '';
+      if(!validateAll()){
+        showToast('Please correct the highlighted fields.');
+        focusFirstInvalid();
+        return;
+      }
+      // Simulate server call (could be replaced by fetch)
+      statusEl.textContent = 'Submitting…';
+      setTimeout(()=>{
+        statusEl.textContent = 'Registration successful — confirmation sent to your email.';
+        showToast('Registration successful');
+        form.reset();
+      }, 700);
+    });
+
+    // Reset handler
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      form.reset();
+      setError(nameEl, errName, '');
+      setError(emailEl, errEmail, '');
+      setError(phoneEl, errPhone, '');
+      setError(sessionEl, errSession, '');
+      statusEl.textContent = '';
+    });
+
+    // Live validation (optional, improves UX)
+    [nameEl, emailEl, phoneEl, sessionEl].forEach(el=>{
+      el.addEventListener('input', () => {
+        // Only validate current field to avoid noisy errors while typing
+        if(el === nameEl) setError(nameEl, errName, validName(el.value) ? '' : errName.textContent);
+        if(el === emailEl) setError(emailEl, errEmail, validEmail(el.value) ? '' : errEmail.textContent);
+        if(el === phoneEl) setError(phoneEl, errPhone, validPhone(el.value) ? '' : errPhone.textContent);
+        if(el === sessionEl) setError(sessionEl, errSession, validSession(el.value) ? '' : errSession.textContent);
+      });
+    });
+
+    // Expose validators for automated tests if needed
+    window.EventFormValidators = { validName, validEmail, validPhone, validSession, validateAll };
+  </script>
+</body>
+</html>

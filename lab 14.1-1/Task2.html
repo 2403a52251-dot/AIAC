@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Product — Online Store</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Theme (AI suggested) ===== */
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --primary:#0ea5a4;   /* teal */
+      --accent:#f97316;    /* orange */
+      --muted:#64748b;
+      --text:#0b1220;
+      --radius:14px;
+      --shadow:0 10px 30px rgba(2,6,23,0.08);
+      --maxw:1100px;
+    }
+
+    /* ===== Reset / Base ===== */
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Poppins,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:linear-gradient(180deg,var(--bg),#ffffff);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:28px;
+    }
+
+    .page{width:100%;max-width:var(--maxw);margin:0 auto;padding:12px}
+
+    /* ===== Header ===== */
+    .site-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .site-header__brand{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--primary)}
+    .site-header__cart{background:linear-gradient(90deg,var(--primary),#06b6d4);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+    /* ===== Product block (BEM) ===== */
+    .product{display:grid;grid-template-columns:1fr 380px;gap:28px;background:transparent}
+    .product__gallery{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;align-items:center;justify-content:center;padding:18px}
+    .product__image{
+      width:100%;height:100%;max-height:560px;object-fit:cover;border-radius:10px;display:block;
+      transition:transform .35s ease,filter .35s ease,box-shadow .25s ease;
+      box-shadow:0 6px 18px rgba(2,6,23,0.04);
+    }
+    .product__gallery:hover .product__image{transform:scale(1.025);filter:brightness(1.03)}
+
+    .product__info{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:12px}
+    .product__title{font-size:1.5rem;margin:0;font-weight:700}
+    .product__meta{color:var(--muted);font-size:0.95rem}
+    .product__price{font-size:1.6rem;color:var(--text);font-weight:800;margin-top:6px}
+    .product__desc{color:var(--muted);line-height:1.5;margin-top:6px}
+
+    .product__specs{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .product__spec{background:#f8fafc;padding:8px 10px;border-radius:10px;color:var(--muted);font-size:0.92rem}
+
+    .product__controls{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+    .product__btn{
+      background:linear-gradient(90deg,var(--primary),#06b6d4);
+      color:#fff;border:0;padding:12px 18px;border-radius:12px;font-weight:700;cursor:pointer;
+      transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease;
+      box-shadow:0 8px 22px rgba(2,6,23,0.08);
+    }
+    .product__btn:hover{transform:translateY(-3px);opacity:0.98}
+    .product__btn:active{transform:translateY(0)}
+    .product__secondary{background:transparent;border:1px solid #e6eef2;padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    .product__qty{padding:8px;border-radius:8px;border:1px solid #e9f0f4;background:#fff;font-weight:600}
+
+    /* ===== Toast (Add to cart alert) ===== */
+    .toast{
+      position:fixed;right:20px;top:20px;background:linear-gradient(90deg,var(--primary),#06b6d4);
+      color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.18);
+      opacity:0;transform:translateY(-8px);transition:opacity .28s ease,transform .28s ease;pointer-events:none;z-index:1200;
+    }
+    .toast.toast--visible{opacity:1;transform:translateY(0);pointer-events:auto}
+
+    /* ===== Responsive ===== */
+    @media (max-width:980px){ .product{grid-template-columns:1fr 320px} }
+    @media (max-width:720px){
+      body{padding:18px}
+      .product{grid-template-columns:1fr;gap:16px}
+      .product__gallery{order:0}
+      .product__info{order:1}
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    .sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header" role="banner">
+      <div class="site-header__brand" aria-hidden="false">
+        <div style="width:44px;height:44px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">S</div>
+        <div style="font-weight:700">ShopName</div>
+      </div>
+
+      <div class="site-header__cart" role="status" aria-live="polite" id="cartBadge">Cart: 0</div>
+    </header>
+
+    <main class="product" role="main" aria-labelledby="productTitle">
+      <!-- gallery -->
+      <figure class="product__gallery" aria-label="Product image">
+        <!-- sample licensed image (Unsplash). Replace with local file if desired. -->
+        <img class="product__image" id="productImage"
+             src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1400&q=80&auto=format&fit=crop"
+             alt="Minimalist watch on wrist">
+      </figure>
+
+      <!-- info -->
+      <section class="product__info" aria-labelledby="productTitle">
+        <h1 id="productTitle" class="product__title">Classic Minimalist Watch</h1>
+        <div class="product__meta">Brand: Meridian • SKU: MD-1023</div>
+        <div class="product__price" id="productPrice">₹2,499</div>
+
+        <p class="product__desc">A timeless minimalist watch with sapphire-coated glass, reliable quartz movement, and water resistance up to 50m. Comfortable strap and refined finish.</p>
+
+        <div class="product__specs" aria-hidden="false">
+          <div class="product__spec">Color: Black</div>
+          <div class="product__spec">Strap: Leather</div>
+          <div class="product__spec">Warranty: 1 year</div>
+        </div>
+
+        <div class="product__controls">
+          <button class="product__btn" id="addToCartBtn" aria-label="Add to cart">Add to Cart</button>
+          <button class="product__secondary" id="favBtn" aria-pressed="false">♡ Favorite</button>
+
+          <label for="qty" class="sr-only">Quantity</label>
+          <select id="qty" class="product__qty" aria-label="Quantity">
+            <option value="1">Qty: 1</option>
+            <option value="2">Qty: 2</option>
+            <option value="3">Qty: 3</option>
+            <option value="4">Qty: 4</option>
+          </select>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="assertive">Added to cart</div>
+
+  <script>
+    (function(){
+      const addBtn = document.getElementById('addToCartBtn');
+      const qtySelect = document.getElementById('qty');
+      const cartBadge = document.getElementById('cartBadge');
+      const toast = document.getElementById('toast');
+      const favBtn = document.getElementById('favBtn');
+      let cartCount = 0;
+
+      function showToast(msg){
+        toast.textContent = msg;
+        toast.classList.add('toast--visible');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(()=> toast.classList.remove('toast--visible'), 2200);
+      }
+
+      addBtn.addEventListener('click', () => {
+        const n = parseInt(qtySelect.value, 10) || 1;
+        cartCount += n;
+        cartBadge.textContent = `Cart: ${cartCount}`;
+        cartBadge.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
+        showToast(`✔ Added ${n} item${n>1 ? 's' : ''} to cart`);
+      });
+
+      favBtn.addEventListener('click', () => {
+        const pressed = favBtn.getAttribute('aria-pressed') === 'true';
+        favBtn.setAttribute('aria-pressed', String(!pressed));
+        favBtn.textContent = (!pressed) ? '♥ Favorited' : '♡ Favorite';
+        showToast((!pressed) ? 'Added to favorites' : 'Removed from favorites');
+      });
+
+      // keyboard accessibility: Enter on image focuses Add button
+      const img = document.getElementById('productImage');
+      img.setAttribute('tabindex','0');
+      img.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.focus(); });
+
+      // image fallback
+      img.onerror = () => {
+        img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="%23eef3f8"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Poppins" font-size="20" fill="%2364748b">Image unavailable</text></svg>';
+      };
+    })();
+  </script>
+</body>
+</html>
+```// filepath: c:\Users\sriha\Desktop\AIAC\Lab 14.1\ProductPage.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Product — Online Store</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Theme (AI suggested) ===== */
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --primary:#0ea5a4;   /* teal */
+      --accent:#f97316;    /* orange */
+      --muted:#64748b;
+      --text:#0b1220;
+      --radius:14px;
+      --shadow:0 10px 30px rgba(2,6,23,0.08);
+      --maxw:1100px;
+    }
+
+    /* ===== Reset / Base ===== */
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Poppins,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:linear-gradient(180deg,var(--bg),#ffffff);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:28px;
+    }
+
+    .page{width:100%;max-width:var(--maxw);margin:0 auto;padding:12px}
+
+    /* ===== Header ===== */
+    .site-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .site-header__brand{display:flex;align-items:center;gap:12px;font-weight:700;color:var(--primary)}
+    .site-header__cart{background:linear-gradient(90deg,var(--primary),#06b6d4);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+    /* ===== Product block (BEM) ===== */
+    .product{display:grid;grid-template-columns:1fr 380px;gap:28px;background:transparent}
+    .product__gallery{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;align-items:center;justify-content:center;padding:18px}
+    .product__image{
+      width:100%;height:100%;max-height:560px;object-fit:cover;border-radius:10px;display:block;
+      transition:transform .35s ease,filter .35s ease,box-shadow .25s ease;
+      box-shadow:0 6px 18px rgba(2,6,23,0.04);
+    }
+    .product__gallery:hover .product__image{transform:scale(1.025);filter:brightness(1.03)}
+
+    .product__info{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:12px}
+    .product__title{font-size:1.5rem;margin:0;font-weight:700}
+    .product__meta{color:var(--muted);font-size:0.95rem}
+    .product__price{font-size:1.6rem;color:var(--text);font-weight:800;margin-top:6px}
+    .product__desc{color:var(--muted);line-height:1.5;margin-top:6px}
+
+    .product__specs{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .product__spec{background:#f8fafc;padding:8px 10px;border-radius:10px;color:var(--muted);font-size:0.92rem}
+
+    .product__controls{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+    .product__btn{
+      background:linear-gradient(90deg,var(--primary),#06b6d4);
+      color:#fff;border:0;padding:12px 18px;border-radius:12px;font-weight:700;cursor:pointer;
+      transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease;
+      box-shadow:0 8px 22px rgba(2,6,23,0.08);
+    }
+    .product__btn:hover{transform:translateY(-3px);opacity:0.98}
+    .product__btn:active{transform:translateY(0)}
+    .product__secondary{background:transparent;border:1px solid #e6eef2;padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    .product__qty{padding:8px;border-radius:8px;border:1px solid #e9f0f4;background:#fff;font-weight:600}
+
+    /* ===== Toast (Add to cart alert) ===== */
+    .toast{
+      position:fixed;right:20px;top:20px;background:linear-gradient(90deg,var(--primary),#06b6d4);
+      color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.18);
+      opacity:0;transform:translateY(-8px);transition:opacity .28s ease,transform .28s ease;pointer-events:none;z-index:1200;
+    }
+    .toast.toast--visible{opacity:1;transform:translateY(0);pointer-events:auto}
+
+    /* ===== Responsive ===== */
+    @media (max-width:980px){ .product{grid-template-columns:1fr 320px} }
+    @media (max-width:720px){
+      body{padding:18px}
+      .product{grid-template-columns:1fr;gap:16px}
+      .product__gallery{order:0}
+      .product__info{order:1}
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    .sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header" role="banner">
+      <div class="site-header__brand" aria-hidden="false">
+        <div style="width:44px;height:44px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">S</div>
+        <div style="font-weight:700">ShopName</div>
+      </div>
+
+      <div class="site-header__cart" role="status" aria-live="polite" id="cartBadge">Cart: 0</div>
+    </header>
+
+    <main class="product" role="main" aria-labelledby="productTitle">
+      <!-- gallery -->
+      <figure class="product__gallery" aria-label="Product image">
+        <!-- sample licensed image (Unsplash). Replace with local file if desired. -->
+        <img class="product__image" id="productImage"
+             src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1400&q=80&auto=format&fit=crop"
+             alt="Minimalist watch on wrist">
+      </figure>
+
+      <!-- info -->
+      <section class="product__info" aria-labelledby="productTitle">
+        <h1 id="productTitle" class="product__title">Classic Minimalist Watch</h1>
+        <div class="product__meta">Brand: Meridian • SKU: MD-1023</div>
+        <div class="product__price" id="productPrice">₹2,499</div>
+
+        <p class="product__desc">A timeless minimalist watch with sapphire-coated glass, reliable quartz movement, and water resistance up to 50m. Comfortable strap and refined finish.</p>
+
+        <div class="product__specs" aria-hidden="false">
+          <div class="product__spec">Color: Black</div>
+          <div class="product__spec">Strap: Leather</div>
+          <div class="product__spec">Warranty: 1 year</div>
+        </div>
+
+        <div class="product__controls">
+          <button class="product__btn" id="addToCartBtn" aria-label="Add to cart">Add to Cart</button>
+          <button class="product__secondary" id="favBtn" aria-pressed="false">♡ Favorite</button>
+
+          <label for="qty" class="sr-only">Quantity</label>
+          <select id="qty" class="product__qty" aria-label="Quantity">
+            <option value="1">Qty: 1</option>
+            <option value="2">Qty: 2</option>
+            <option value="3">Qty: 3</option>
+            <option value="4">Qty: 4</option>
+          </select>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="assertive">Added to cart</div>
+
+  <script>
+    (function(){
+      const addBtn = document.getElementById('addToCartBtn');
+      const qtySelect = document.getElementById('qty');
+      const cartBadge = document.getElementById('cartBadge');
+      const toast = document.getElementById('toast');
+      const favBtn = document.getElementById('favBtn');
+      let cartCount = 0;
+
+      function showToast(msg){
+        toast.textContent = msg;
+        toast.classList.add('toast--visible');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(()=> toast.classList.remove('toast--visible'), 2200);
+      }
+
+      addBtn.addEventListener('click', () => {
+        const n = parseInt(qtySelect.value, 10) || 1;
+        cartCount += n;
+        cartBadge.textContent = `Cart: ${cartCount}`;
+        cartBadge.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
+        showToast(`✔ Added ${n} item${n>1 ? 's' : ''} to cart`);
+      });
+
+      favBtn.addEventListener('click', () => {
+        const pressed = favBtn.getAttribute('aria-pressed') === 'true';
+        favBtn.setAttribute('aria-pressed', String(!pressed));
+        favBtn.textContent = (!pressed) ? '♥ Favorited' : '♡ Favorite';
+        showToast((!pressed) ? 'Added to favorites' : 'Removed from favorites');
+      });
+
+      // keyboard accessibility: Enter on image focuses Add button
+      const img = document.getElementById('productImage');
+      img.setAttribute('tabindex','0');
+      img.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.focus(); });
+
+      // image fallback
+      img.onerror = () => {
+        img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="%23eef3f8"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Poppins" font-size="20" fill="%2364748b">Image unavailable</text></svg>';
+      };
+    })();
+  </script>
+</body>
+</html>
